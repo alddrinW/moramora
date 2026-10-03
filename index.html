@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Un detalle especial de mora</title>
+  <meta name="description" content="Una experiencia interactiva y dulce con sabor a mora.">
+
+  <!-- Google Fonts: Fredoka & Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       VARIABLES Y TEMA VISUAL DE MORA
+       ========================================================== */
+    :root {
+      --bg-dark: #150320;
+      --bg-purple-deep: #250734;
+      --purple-primary: #6A1B9A;
+      --purple-vibrant: #9C4DCC;
+      --purple-light: #BA68C8;
+      --berry-bright: #D81B60;
+      --berry-dark: #4A0E4E;
+      --pink-icecream: #F8BBD9;
+      --pink-soft: #FCE4EC;
+      --cream-vanilla: #FFF8F0;
+      --cone-gold: #E6A15C;
+      --cone-dark: #B5742E;
+      --leaf-green: #4CAF50;
+      --leaf-dark: #2E7D32;
+      --text-main: #FFFFFF;
+      --text-muted: #E1BEE7;
+      --glass-bg: rgba(45, 10, 63, 0.65);
+      --glass-card: rgba(65, 18, 90, 0.55);
+      --glass-border: rgba(248, 187, 217, 0.25);
+      --glass-border-bright: rgba(216, 27, 96, 0.5);
+      --shadow-soft: 0 8px 32px 0 rgba(18, 2, 28, 0.45);
+      --shadow-glow: 0 0 25px rgba(156, 77, 204, 0.4);
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 32px;
+      --radius-full: 9999px;
+      --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Nunito', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 10%, #3D0C54 0%, var(--bg-purple-deep) 40%, var(--bg-dark) 100%);
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    h1,
+    h2,
+    h3,
+    .font-title {
+      font-family: 'Fredoka', cursive, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* ==========================================================
+       CANVAS Y FONDOS ANIMADOS
+       ========================================================== */
+    #ambient-canvas,
+    #trail-canvas,
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #trail-canvas {
+      z-index: 999;
+    }
+
+    #confetti-canvas {
+      z-index: 1000;
+    }
+
+    /* Barra de progreso superior con Mora */
+    .progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 1001;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--purple-vibrant), var(--berry-bright));
+      position: relative;
+      transition: width 0.1s ease-out;
+      box-shadow: 0 0 10px var(--berry-bright);
+    }
+
+    .progress-berry {
+      position: absolute;
+      right: -10px;
+      top: -9px;
+      width: 24px;
+      height: 24px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    /* Botón flotante de Audio y Easter Egg */
+    .floating-controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 10px;
+      z-index: 1002;
+    }
+
+    .btn-icon-glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-full);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pink-icecream);
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: var(--transition);
+    }
+
+    .btn-icon-glass:hover {
+      transform: scale(1.1);
+      border-color: var(--pink-icecream);
+      color: #fff;
+    }
+
+    .btn-icon-glass:active {
+      transform: scale(0.95);
+    }
+
+    /* Contenedor principal */
+    .container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    section {
+      min-height: 90vh;
+      padding: 60px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Tarjetas Glassmorphism */
+    .glass-box {
+      background: var(--glass-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 28px 22px;
+      box-shadow: var(--shadow-soft);
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .glass-box:hover {
+      border-color: var(--glass-border-bright);
+    }
+
+    /* ==========================================================
+       SECCIÓN 1: BIENVENIDA
+       ========================================================== */
+    .hero-cone-container {
+      position: relative;
+      width: 200px;
+      height: 250px;
+      margin: 0 auto 24px;
+      cursor: pointer;
+    }
+
+    .hero-cone-svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.5));
+      animation: floatCone 4s ease-in-out infinite;
+    }
+
+    @keyframes floatCone {
+
+      0%,
+      100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-12px) rotate(1.5deg);
+      }
+    }
+
+    .drip-drop {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: radial-gradient(circle at 35% 35%, #BA68C8, #4A0E4E);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      bottom: 60px;
+      left: 95px;
+      animation: dripFall 2.8s infinite cubic-bezier(0.5, 0, 0.75, 0);
+      opacity: 0;
+    }
+
+    @keyframes dripFall {
+      0% {
+        transform: translateY(0) scale(0.6);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0.9;
+        transform: translateY(4px) scale(0.9);
+      }
+
+      70% {
+        transform: translateY(50px) scale(1);
+        opacity: 0.9;
+      }
+
+      90% {
+        transform: translateY(70px) scale(1.4, 0.5);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: translateY(75px) scale(2, 0.2);
+        opacity: 0;
+      }
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(248, 187, 217, 0.12);
+      border: 1px solid rgba(248, 187, 217, 0.3);
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      color: var(--pink-icecream);
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      line-height: 1.25;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #FFFFFF 20%, var(--pink-icecream) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @media (min-width: 600px) {
+      .hero-title {
+        font-size: 2.8rem;
+      }
+    }
+
+    .typewriter-text {
+      display: inline-block;
+      min-height: 2.5em;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .btn-glow-primary {
+      background: linear-gradient(135deg, var(--berry-bright), var(--purple-primary));
+      color: #FFFFFF;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: 16px 36px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px rgba(216, 27, 96, 0.45);
+      transition: var(--transition);
+      animation: pulseBtn 2.2s infinite;
+      min-height: 52px;
+    }
+
+    @keyframes pulseBtn {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 8px 25px rgba(216, 27, 96, 0.4);
+      }
+
+      50% {
+        transform: scale(1.04);
+        box-shadow: 0 12px 35px rgba(216, 27, 96, 0.7);
+      }
+    }
+
+    .btn-glow-primary:hover {
+      transform: scale(1.08) translateY(-2px);
+      box-shadow: 0 15px 40px rgba(216, 27, 96, 0.8);
+    }
+
+    .btn-glow-primary:active {
+      transform: scale(0.96);
+    }
+
+    /* ==========================================================
+       SECCIÓN 2: HELADO INTERACTIVO (3 BOLAS)
+       ========================================================== */
+    .icecream-interactive-wrap {
+      position: relative;
+      width: 240px;
+      height: 340px;
+      margin: 20px auto 15px;
+    }
+
+    .scoop-btn {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+    }
+
+    .scoop-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .scoop-btn.bounce-active {
+      animation: scoopBounce 0.6s ease;
+    }
+
+    @keyframes scoopBounce {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      30% {
+        transform: scale(1.22) translateY(-14px);
+      }
+
+      60% {
+        transform: scale(0.92) translateY(4px);
+      }
+
+      80% {
+        transform: scale(1.05) translateY(-2px);
+      }
+    }
+
+    .scoop-1 {
+      top: 0px;
+      left: 45px;
+      z-index: 5;
+    }
+
+    .scoop-2 {
+      top: 65px;
+      left: 20px;
+      z-index: 4;
+    }
+
+    .scoop-3 {
+      top: 65px;
+      right: 20px;
+      z-index: 4;
+    }
+
+    .waffle-cone {
+      position: absolute;
+      bottom: 0px;
+      left: 45px;
+      width: 150px;
+      height: 180px;
+      z-index: 2;
+    }
+
+    .message-bubble {
+      background: var(--cream-vanilla);
+      color: var(--bg-purple-deep);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-top: 15px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .message-bubble::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 10px 10px 10px;
+      border-style: solid;
+      border-color: transparent transparent var(--cream-vanilla) transparent;
+    }
+
+    .lyrics-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      text-align: center;
+      padding: 8px 4px;
+      max-height: 280px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--pink-icecream) transparent;
+    }
+
+    .lyrics-header {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--purple-primary);
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      position: sticky;
+      top: 0;
+      background: var(--cream-vanilla);
+      padding: 2px 0;
+      z-index: 2;
+    }
+
+    .lyrics-line {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--bg-purple-deep);
+      font-style: italic;
+      font-weight: 800;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.8s ease, transform 0.8s ease, color 0.4s ease;
+    }
+
+    .lyrics-line.visible {
+      opacity: 0.9;
+      transform: translateY(0);
+    }
+
+    .lyrics-line.highlight {
+      opacity: 1;
+      color: var(--berry-bright);
+      text-shadow: 0 0 12px rgba(216, 27, 96, 0.35);
+      transform: translateY(0) scale(1.03);
+    }
+
+    .counter-pill {
+      margin-top: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.95rem;
+      color: var(--pink-icecream);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--glass-border);
+    }
+
+    /* ==========================================================
+       SECCIÓN 3: MENÚ DE SABORES DE TI (TARJETAS 3D)
+       ========================================================== */
+    .flavors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+      margin-top: 24px;
+      perspective: 1000px;
+    }
+
+    @media (min-width: 550px) {
+      .flavors-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+    }
+
+    .flavor-card {
+      height: 190px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .flavor-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, rgba(74, 14, 78, 0.8), rgba(45, 10, 63, 0.9));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card-front:hover {
+      border-color: var(--pink-icecream);
+      transform: translateY(-2px);
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, rgba(106, 27, 154, 0.95), rgba(216, 27, 96, 0.9));
+      transform: rotateY(180deg);
+      box-shadow: var(--shadow-glow);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.35;
+      padding: 12px;
+    }
+
+    .flavor-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    .flavor-title {
+      font-size: 1rem;
+      color: var(--pink-icecream);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .flavor-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      opacity: 0.85;
+    }
+
+    /* ==========================================================
+       SECCIÓN 4: MORÓMETRO DE BELLEZA
+       ========================================================== */
+    .morometer-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 15px;
+    }
+
+    .beaker-glass {
+      width: 110px;
+      height: 220px;
+      border: 4px solid var(--glass-border);
+      border-top: none;
+      border-radius: 0 0 35px 35px;
+      background: rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), var(--shadow-glow);
+    }
+
+    .beaker-liquid {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(180deg, var(--berry-bright) 0%, var(--purple-primary) 60%, var(--berry-dark) 100%);
+      transition: height 0.1s linear;
+      box-shadow: 0 0 15px var(--berry-bright);
+    }
+
+    .beaker-wave {
+      position: absolute;
+      top: -10px;
+      left: 0;
+      width: 200%;
+      height: 20px;
+      background: radial-gradient(circle, var(--pink-icecream) 30%, transparent 70%);
+      opacity: 0.6;
+      animation: waveMove 2s linear infinite;
+    }
+
+    @keyframes waveMove {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .beaker-marks {
+      position: absolute;
+      top: 0;
+      right: 6px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 15px 0;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.4);
+      pointer-events: none;
+    }
+
+    .meter-status-box {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.25rem;
+      color: var(--pink-icecream);
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: color 0.3s;
+    }
+
+    .btn-hold {
+      background: linear-gradient(135deg, var(--purple-vibrant), var(--berry-bright));
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.15rem;
+      padding: 16px 32px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(156, 77, 204, 0.5);
+      transition: transform 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-hold:active,
+    .btn-hold.holding {
+      transform: scale(0.94);
+      background: linear-gradient(135deg, var(--berry-bright), #FF4081);
+      box-shadow: 0 0 30px rgba(216, 27, 96, 0.8);
+    }
+
+    /* ==========================================================
+       SECCIÓN 5: ATRAPA LAS MORAS (MINI-JUEGO)
+       ========================================================== */
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: rgba(20, 2, 30, 0.65);
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--radius-lg);
+      margin-top: 16px;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .game-stats {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.1rem;
+      z-index: 10;
+      color: var(--pink-icecream);
+    }
+
+    .falling-mora {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+      transition: transform 0.1s;
+      z-index: 5;
+    }
+
+    .floating-point-text {
+      position: absolute;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #FFF;
+      text-shadow: 0 2px 8px rgba(216, 27, 96, 0.9);
+      pointer-events: none;
+      animation: floatUpFade 0.8s ease-out forwards;
+      z-index: 20;
+    }
+
+    @keyframes floatUpFade {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-35px) scale(1.3);
+      }
+    }
+
+    .game-overlay-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(25, 4, 36, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 20px;
+      z-index: 30;
+      text-align: center;
+    }
+
+    /* ==========================================================
+       SECCIÓN 6: BOTÓN TRAVIESO
+       ========================================================== */
+    .mischief-zone {
+      position: relative;
+      width: 100%;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #00C853, #64DD17);
+      color: #0d3810;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 16px 40px;
+      border-radius: var(--radius-full);
+      border: 2px solid #B9F6CA;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 200, 83, 0.45);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 5;
+    }
+
+    .btn-yes:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 35px rgba(0, 200, 83, 0.65);
+    }
+
+    .btn-no {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      border: 1px solid var(--glass-border);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.2s ease-out;
+      position: relative;
+      z-index: 4;
+    }
+
+    /* ==========================================================
+       SECCIÓN 7: CUPÓN PREMIUM RASPABLE
+       ========================================================== */
+    .ticket-outer {
+      background: linear-gradient(135deg, #FFF8F0 0%, #F8BBD9 100%);
+      color: var(--bg-purple-deep);
+      border-radius: var(--radius-lg);
+      padding: 6px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(248, 187, 217, 0.35);
+      width: 100%;
+      max-width: 440px;
+      margin: 20px auto;
+    }
+
+    .ticket-inner {
+      background: #FFFDF9;
+      border-radius: calc(var(--radius-lg) - 4px);
+      border: 2px dashed rgba(106, 27, 154, 0.35);
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Muescas laterales de boleto perforado */
+    .ticket-notch-left,
+    .ticket-notch-right {
+      position: absolute;
+      top: 50%;
+      width: 24px;
+      height: 24px;
+      background: var(--bg-dark);
+      border-radius: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+
+    .ticket-notch-left {
+      left: -12px;
+    }
+
+    .ticket-notch-right {
+      right: -12px;
+    }
+
+    .scratch-container {
+      position: relative;
+      width: 100%;
+      min-height: 180px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin: 14px 0;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    #scratch-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+      z-index: 5;
+      border-radius: var(--radius-md);
+    }
+
+    .scratch-secret-content {
+      padding: 16px 12px;
+      background: linear-gradient(135deg, #F3E5F5, #FCE4EC);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+    }
+
+    .coupon-code-badge {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--purple-primary);
+      background: rgba(255, 255, 255, 0.85);
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--purple-vibrant);
+      margin: 8px 0;
+      box-shadow: 0 4px 10px rgba(106, 27, 154, 0.15);
+    }
+
+    .screenshot-alert {
+      background: rgba(216, 27, 96, 0.12);
+      border: 1px solid var(--berry-bright);
+      color: #9C1B4A;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      animation: alertPulse 2s infinite;
+    }
+
+    @keyframes alertPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.02);
+      }
+    }
+
+    /* ==========================================================
+       SECCIÓN 8: CARTA FINAL Y WHATSAPP
+       ========================================================== */
+    .letter-box {
+      background: linear-gradient(145deg, rgba(50, 10, 70, 0.85), rgba(30, 5, 45, 0.95));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: left;
+      position: relative;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 24px;
+    }
+
+    .letter-text {
+      font-size: 1.12rem;
+      line-height: 1.8;
+      color: #F8E6FA;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .letter-signature {
+      text-align: right;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.3rem;
+      color: var(--pink-icecream);
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: #FFFFFF;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 16px 36px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+      transition: var(--transition);
+      min-height: 52px;
+    }
+
+    .btn-whatsapp:hover {
+      transform: scale(1.06) translateY(-2px);
+      box-shadow: 0 14px 35px rgba(37, 211, 102, 0.6);
+    }
+
+    /* ==========================================================
+       TOASTS, MODALES Y EASTER EGGS
+       ========================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1005;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast-item {
+      background: rgba(45, 10, 63, 0.92);
+      border: 1px solid var(--pink-icecream);
+      backdrop-filter: blur(12px);
+      padding: 12px 18px;
+      border-radius: var(--radius-full);
+      color: #FFF;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(120%);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast-item.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Modal Easter Egg */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 2, 22, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: linear-gradient(145deg, #3D0C54, #1B0326);
+      border: 2px solid var(--pink-icecream);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(216, 27, 96, 0.6);
+      position: relative;
+      transform: scale(0.8);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1);
+    }
+
+    /* SVG Utility icons */
+    .svg-icon {
+      display: inline-block;
+      vertical-align: middle;
+      fill: currentColor;
+    }
+
+    /* Accesibilidad: prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      ::before,
+      ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Barra de progreso superior -->
+  <div class="progress-track" aria-hidden="true">
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-berry">
+        <!-- SVG Mora Miniatura -->
+        <svg viewBox="0 0 32 32" width="24" height="24">
+          <circle cx="16" cy="18" r="5" fill="#BA68C8" />
+          <circle cx="11" cy="16" r="4.5" fill="#9C4DCC" />
+          <circle cx="21" cy="16" r="4.5" fill="#9C4DCC" />
+          <circle cx="13" cy="22" r="4" fill="#6A1B9A" />
+          <circle cx="19" cy="22" r="4" fill="#6A1B9A" />
+          <circle cx="16" cy="25" r="3.5" fill="#4A0E4E" />
+          <!-- Hojas verdes -->
+          <path d="M16 11 C13 7, 9 9, 10 13 C12 13, 14 12, 16 11 Z" fill="#4CAF50" />
+          <path d="M16 11 C19 7, 23 9, 22 13 C20 13, 18 12, 16 11 Z" fill="#388E3C" />
+          <circle cx="16" cy="11" r="1.5" fill="#81C784" />
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles flotantes superiores: Audio & Easter Egg -->
+  <div class="floating-controls">
+    <button class="btn-icon-glass" id="btnAudioToggle" title="Activar/Silenciar efectos de sonido"
+      aria-label="Control de audio">
+      <svg id="iconAudioOn" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path
+          d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+      </svg>
+      <svg id="iconAudioOff" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none;">
+        <path
+          d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Lienzos para fondo ambiental y partículas -->
+  <canvas id="ambient-canvas"></canvas>
+  <canvas id="trail-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+
+  <main class="container">
+
+    <!-- ==========================================================
+         1. PANTALLA DE BIENVENIDA
+         ========================================================== -->
+    <section id="bienvenida">
+      <div class="badge-pill" id="secretLogoTrigger" title="Toca 5 veces para un secreto">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path
+            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+        <span>Edición Especial de Mora</span>
+      </div>
+
+      <!-- Cono de helado de mora animado SVG -->
+      <div class="hero-cone-container" id="heroIcecream">
+        <svg class="hero-cone-svg" viewBox="0 0 200 260">
+          <defs>
+            <radialGradient id="moraHeroGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#E1BEE7" />
+              <stop offset="30%" stop-color="#BA68C8" />
+              <stop offset="70%" stop-color="#6A1B9A" />
+              <stop offset="100%" stop-color="#2D0A3F" />
+            </radialGradient>
+            <linearGradient id="coneHeroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F5CBA7" />
+              <stop offset="50%" stop-color="#E6A15C" />
+              <stop offset="100%" stop-color="#AF601A" />
+            </linearGradient>
+            <filter id="glowHero" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          <!-- Hojitas y tallo superior -->
+          <path d="M100 24 C90 10, 75 14, 80 28 C90 28, 95 26, 100 24 Z" fill="#4CAF50" />
+          <path d="M100 24 C110 10, 125 14, 120 28 C110 28, 105 26, 100 24 Z" fill="#2E7D32" />
+          <circle cx="100" cy="25" r="3" fill="#81C784" />
+
+          <!-- Bola gigante de mora con textura de esferas -->
+          <g filter="url(#glowHero)">
+            <circle cx="100" cy="85" r="55" fill="url(#moraHeroGrad)" />
+            <!-- Texturas redondas de mora -->
+            <circle cx="80" cy="65" r="14" fill="#BA68C8" opacity="0.6" />
+            <circle cx="115" cy="65" r="15" fill="#CE93D8" opacity="0.7" />
+            <circle cx="70" cy="90" r="16" fill="#9C4DCC" opacity="0.8" />
+            <circle cx="130" cy="90" r="15" fill="#8E24AA" opacity="0.8" />
+            <circle cx="100" cy="95" r="18" fill="#7B1FA2" opacity="0.9" />
+            <circle cx="100" cy="60" r="12" fill="#E1BEE7" opacity="0.7" />
+          </g>
+
+          <!-- Gotas derritiéndose -->
+          <path
+            d="M50 110 C50 130, 62 135, 65 125 C68 115, 78 135, 85 120 C92 110, 108 140, 115 125 C122 112, 138 132, 142 120 C146 110, 150 115, 150 110 Z"
+            fill="#6A1B9A" />
+          <path
+            d="M60 112 C60 126, 68 126, 70 115 C72 108, 80 128, 86 114 C94 105, 106 132, 112 118 C118 108, 132 124, 138 112 Z"
+            fill="#8E24AA" opacity="0.7" />
+
+          <!-- Cono de galleta -->
+          <polygon points="50,115 150,115 100,240" fill="url(#coneHeroGrad)" />
+
+          <!-- Cuadrícula del cono de barquillo -->
+          <line x1="65" y1="120" x2="115" y2="205" stroke="#873600" stroke-width="2.5" opacity="0.45" />
+          <line x1="80" y1="120" x2="108" y2="220" stroke="#873600" stroke-width="2.5" opacity="0.45" />
+          <line x1="95" y1="120" x2="102" y2="235" stroke="#873600" stroke-width="2.5" opacity="0.45" />
+          <line x1="135" y1="120" x2="85" y2="205" stroke="#873600" stroke-width="2.5" opacity="0.45" />
+          <line x1="120" y1="120" x2="92" y2="220" stroke="#873600" stroke-width="2.5" opacity="0.45" />
+          <line x1="105" y1="120" x2="98" y2="235" stroke="#873600" stroke-width="2.5" opacity="0.45" />
+
+          <!-- Brillo y destellos -->
+          <path d="M135 55 Q140 45 150 45 Q140 45 135 35 Q130 45 120 45 Q130 45 135 55 Z" fill="#FFF" opacity="0.85" />
+          <path d="M65 50 Q68 43 75 43 Q68 43 65 36 Q62 43 55 43 Q62 43 65 50 Z" fill="#FFF" opacity="0.7" />
+        </svg>
+
+        <!-- Gotita cayendo animada -->
+        <div class="drip-drop"></div>
+      </div>
+
+      <h1 class="hero-title" id="mainGreetingTitle">Hola, <span id="labelNombreElla" style="color:#F8BBD9;">Marcelyn
+          &lt;3</span></h1>
+      <p class="typewriter-text" id="typewriterText"></p>
+
+      <button class="btn-glow-primary" id="btnOpenGift">
+        <!-- SVG Cono Icono -->
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path
+            d="M12 2C9.24 2 7 4.24 7 7c0 1.34.53 2.55 1.39 3.44L12 22l3.61-11.56C16.47 9.55 17 8.34 17 7c0-2.76-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" />
+        </svg>
+        <span>Continuar con la experiencia</span>
+      </button>
+    </section>
+
+
+    <!-- ==========================================================
+         2. EL HELADO QUE TE REPRESENTA (3 BOLAS)
+         ========================================================== -->
+    <section id="helado-representa">
+      <div class="glass-box">
+        <div class="badge-pill">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+          <span>Interacción Dulce</span>
+        </div>
+        <h2>El Helado que te Representa</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+          Toca cada bola de helado para descubrir por qué eres tan especial.
+        </p>
+
+        <div class="icecream-interactive-wrap">
+          <!-- Bola 1: Mora Silvestre (Arriba) -->
+          <div class="scoop-btn scoop-1" id="scoop1" data-index="0">
+            <svg viewBox="0 0 100 100" width="110" height="110">
+              <defs>
+                <radialGradient id="gradScoop1" cx="35%" cy="30%">
+                  <stop offset="0%" stop-color="#E1BEE7" />
+                  <stop offset="40%" stop-color="#9C27B0" />
+                  <stop offset="100%" stop-color="#311B92" />
+                </radialGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" fill="url(#gradScoop1)" />
+              <circle cx="35" cy="35" r="10" fill="#E1BEE7" opacity="0.6" />
+              <circle cx="65" cy="40" r="12" fill="#BA68C8" opacity="0.5" />
+              <circle cx="50" cy="60" r="14" fill="#7B1FA2" opacity="0.7" />
+              <path d="M50 15 C45 8, 38 10, 40 18 C45 18, 48 16, 50 15 Z" fill="#4CAF50" />
+              <path d="M50 15 C55 8, 62 10, 60 18 C55 18, 52 16, 50 15 Z" fill="#388E3C" />
+            </svg>
+          </div>
+
+          <!-- Bola 2: Mora Intensa (Abajo Izq) -->
+          <div class="scoop-btn scoop-2" id="scoop2" data-index="1">
+            <svg viewBox="0 0 100 100" width="105" height="105">
+              <defs>
+                <radialGradient id="gradScoop2" cx="35%" cy="30%">
+                  <stop offset="0%" stop-color="#F48FB1" />
+                  <stop offset="50%" stop-color="#AD1457" />
+                  <stop offset="100%" stop-color="#4A0072" />
+                </radialGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" fill="url(#gradScoop2)" />
+              <circle cx="38" cy="38" r="10" fill="#F8BBD9" opacity="0.7" />
+              <circle cx="65" cy="45" r="12" fill="#C2185B" opacity="0.6" />
+              <circle cx="48" cy="62" r="14" fill="#880E4F" opacity="0.7" />
+            </svg>
+          </div>
+
+          <!-- Bola 3: Mora con Crema (Abajo Der) -->
+          <div class="scoop-btn scoop-3" id="scoop3" data-index="2">
+            <svg viewBox="0 0 100 100" width="105" height="105">
+              <defs>
+                <radialGradient id="gradScoop3" cx="35%" cy="30%">
+                  <stop offset="0%" stop-color="#FFF3E8" />
+                  <stop offset="35%" stop-color="#CE93D8" />
+                  <stop offset="85%" stop-color="#6A1B9A" />
+                  <stop offset="100%" stop-color="#280536" />
+                </radialGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" fill="url(#gradScoop3)" />
+              <circle cx="35" cy="35" r="12" fill="#FFF" opacity="0.7" />
+              <circle cx="65" cy="40" r="11" fill="#E1BEE7" opacity="0.6" />
+              <circle cx="50" cy="60" r="15" fill="#4A148C" opacity="0.8" />
+            </svg>
+          </div>
+
+          <!-- Cono inferior -->
+          <div class="waffle-cone">
+            <svg viewBox="0 0 120 150" width="100%" height="100%">
+              <polygon points="10,10 110,10 60,145" fill="#D9883B" />
+              <line x1="25" y1="15" x2="80" y2="105" stroke="#934D0B" stroke-width="2.5" opacity="0.4" />
+              <line x1="45" y1="15" x2="72" y2="125" stroke="#934D0B" stroke-width="2.5" opacity="0.4" />
+              <line x1="95" y1="15" x2="40" y2="105" stroke="#934D0B" stroke-width="2.5" opacity="0.4" />
+              <line x1="75" y1="15" x2="48" y2="125" stroke="#934D0B" stroke-width="2.5" opacity="0.4" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Mensaje dinámico de la bola tocada -->
+        <div class="message-bubble" id="scoopMessage">
+          <span>¡Toca cualquiera de las 3 bolas de mora arriba!</span>
+        </div>
+
+        <div class="counter-pill" id="scoopCounter">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          <span id="counterText">Descubre los 3 sabores (0/3)</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================================
+         3. MENÚ DE SABORES DE TI (6 TARJETAS 3D FLIP)
+         ========================================================== -->
+    <section id="sabores-de-ti">
+      <div class="glass-box">
+        <div class="badge-pill">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+          </svg>
+          <span>Colección Especial</span>
+        </div>
+        <h2>Menú de Sabores de Ti</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+          Toca cada tarjeta para voltearla y revelar una razón por la que eres increible.
+        </p>
+
+        <div class="flavors-grid" id="flavorsGrid">
+          <!-- Se inyecta dinámicamente con JavaScript -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================================
+         4. MORÓMETRO DE BELLEZA
+         ========================================================== -->
+    <section id="morometro">
+      <div class="glass-box">
+        <div class="badge-pill">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M15 13V5c0-1.66-1.34-3-3-3S9 3.34 9 5v8c-1.21.91-2 2.37-2 4 0 2.76 2.24 5 5 5s5-2.24 5-5c0-1.63-.79-3.09-2-4zm-4-8c0-.55.45-1 1-1s1 .45 1 1h-1v1h1v2h-1v1h1v1h-2V5z" />
+          </svg>
+          <span>Análisis Científico de Dulzura</span>
+        </div>
+        <h2>Morómetro de Belleza</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+          Mantén presionado el botón para medir tu nivel exacto de encanto.
+        </p>
+
+        <div class="morometer-wrapper">
+          <div class="beaker-glass">
+            <div class="beaker-liquid" id="meterLiquid">
+              <div class="beaker-wave"></div>
+            </div>
+            <div class="beaker-marks">
+              <span>MAX</span>
+              <span>100%</span>
+              <span>75%</span>
+              <span>50%</span>
+              <span>25%</span>
+              <span>0%</span>
+            </div>
+          </div>
+
+          <div class="meter-status-box" id="meterStatus">
+            Presiona y mantén presionado abajo...
+          </div>
+
+          <button class="btn-hold" id="btnHoldMeter">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"
+              style="vertical-align:middle; margin-right:6px;">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
+            </svg>
+            <span id="btnHoldText">Mantener presionado</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================================
+         5. ATRAPA LAS MORAS (MINI-JUEGO 15s)
+         ========================================================== -->
+    <section id="atrapa-moras">
+      <div class="glass-box">
+        <div class="badge-pill">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+          </svg>
+          <span>Mini-Desafío</span>
+        </div>
+        <h2>Atrapa las Moras</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+          Toca tantas moras como puedas antes de que se acabe el tiempo (15 seg).
+        </p>
+
+        <div class="game-area" id="gameArea">
+          <div class="game-stats">
+            <div>Tiempo: <span id="gameTimer" style="color:#FFF;">15</span>s</div>
+            <div>Puntos: <span id="gameScore" style="color:#FFF;">0</span></div>
+          </div>
+
+          <!-- Pantalla inicial / final del juego -->
+          <div class="game-overlay-screen" id="gameOverScreen">
+            <h3 id="gameOverlayTitle" style="font-size:1.4rem; color:var(--pink-icecream);">¿Lista para jugar?</h3>
+            <p id="gameOverlayDesc" style="font-size:0.95rem; color:#E1BEE7; max-width:300px;">
+              Atrapa las moras cayendo tocándolas en la pantalla.
+            </p>
+            <button class="btn-glow-primary" id="btnStartGame"
+              style="padding:12px 28px; font-size:1.1rem; min-height:46px;">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              <span>Comenzar Juego</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================================
+         6. BOTÓN TRAVIESO
+         ========================================================== -->
+    <section id="invitacion">
+      <div class="glass-box">
+        <div class="badge-pill">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          <span>Una Pregunta Crucial</span>
+        </div>
+        <h2 style="font-size: 1.8rem; margin-top: 8px;">¿Me dejas invitarte a un helado de mora?</h2>
+        <p style="color: var(--text-muted); font-size: 1rem; margin-top: 8px;">
+          Solo hay una respuesta correcta... pero te dejo probar.
+        </p>
+
+        <div class="mischief-zone" id="mischiefZone">
+          <button class="btn-yes" id="btnYesMischief">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+            <span id="btnYesText">¡Sí, me encantaría!</span>
+          </button>
+
+          <button class="btn-no" id="btnNoMischief">
+            Mmm... déjame pensarlo
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================================
+         7. SECCIÓN DE PREMIO: CUPÓN RASPABLE (TICKET VIP)
+         ========================================================== -->
+    <section id="premio">
+      <div class="badge-pill">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path
+            d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z" />
+        </svg>
+        <span>Recompensa Desbloqueada</span>
+      </div>
+      <h2>Tu Boleto de Helado Oficial</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+        Raspa con tu dedo o mouse la zona brillante para revelar el premio oficial.
+      </p>
+
+      <div class="ticket-outer">
+        <div class="ticket-notch-left"></div>
+        <div class="ticket-notch-right"></div>
+
+        <div class="ticket-inner">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #E1BEE7; padding-bottom:10px;">
+            <div
+              style="font-family:'Fredoka',sans-serif; font-weight:700; color:var(--purple-primary); font-size:1.1rem; display:flex; align-items:center; gap:6px;">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path
+                  d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-2-1.5c-1.25.78-2 2.17-2 3.5s.75 2.72 2 3.5V18H4v-2.5c1.25-.78 2-2.17 2-3.5s-.75-2.72-2-3.5V6h16v2.5z" />
+              </svg>
+              <span>PASE VIP DE MORA</span>
+            </div>
+            <div style="font-size:0.8rem; color:#6A1B9A; font-weight:800;" id="couponDate">Vigente</div>
+          </div>
+
+          <!-- Zona de Raspadita -->
+          <div class="scratch-container" id="scratchContainer">
+            <canvas id="scratch-canvas"></canvas>
+
+            <div class="scratch-secret-content">
+              <svg viewBox="0 0 24 24" width="36" height="36" fill="#D81B60" style="margin-bottom:4px;">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+              <div style="font-family:'Fredoka',sans-serif; font-size:1.15rem; color:#2D0A3F; font-weight:700;"
+                id="labelCuponPremio">
+                1 HELADO DE MORA + 1 SALIDA CONMIGO
+              </div>
+              <div class="coupon-code-badge" id="couponCode">MORA-7492</div>
+              <div style="font-size:0.85rem; color:#6A1B9A; font-weight:700;">
+                Para: <span id="ticketRecipient">Marcelyn &lt;3</span> · De: <span id="ticketSender">Alddrun</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:0.8rem; color:#7B1FA2; font-weight:700; margin-top:4px;" id="couponValidity">
+            Válido por 7 días a partir de hoy
+          </div>
+
+          <div class="screenshot-alert">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="flex-shrink:0;">
+              <path
+                d="M12 15c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0-8c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5zm-8-3H2v18h20V4h-2l-2-2H8L6 4H4zm16 16H4V6h3.17L9 4h6l1.83 2H20v14z" />
+            </svg>
+            <span>Toma una captura de pantalla para reclamar tu helado oficial.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================================
+         8. MENSAJE FINAL Y BOTÓN WHATSAPP
+         ========================================================== -->
+    <section id="mensaje-final">
+      <div class="glass-box" style="padding: 32px 24px;">
+        <div class="badge-pill">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+          </svg>
+          <span>De mi parte para ti</span>
+        </div>
+
+        <div class="letter-box">
+          <p class="letter-text" id="finalLetterText">
+            "No sé si lo notaste, pero me gustas, Marcelyn &lt;3. Quería sacarte una sonrisa de la forma más dulce que
+            se me ocurrió."
+          </p>
+          <div class="letter-signature" id="finalLetterSig">
+            — Con cariño, Alddrun
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+          <a class="btn-whatsapp" id="btnWhatsappResponse" href="#" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <path
+                d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24M8.53 7.33c-.16 0-.43.06-.66.31-.22.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.13.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.53.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29s-1.47-.73-1.7-.81c-.23-.08-.4-.13-.57.13s-.66.81-.81.98c-.15.17-.3.19-.55.07s-1.05-.39-2-1.23c-.74-.66-1.23-1.47-1.38-1.72-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43s-.57-1.37-.78-1.88c-.2-.49-.41-.43-.57-.43z" />
+            </svg>
+            <span id="btnWhatsappText">Responderle a Alddrun</span>
+          </a>
+
+          <p style="font-size:0.8rem; color:var(--text-muted); opacity:0.8;">
+            Hecho con mucho cariño para ti bubububu tqm siempre.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Contenedor de Toasts -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Modal Easter Egg (Tocar 5 veces el logo) -->
+  <div class="modal-backdrop" id="easterEggModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <svg viewBox="0 0 24 24" width="50" height="50" fill="#D81B60" style="margin-bottom:12px;">
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+      </svg>
+      <h3 style="font-size:1.6rem; color:var(--pink-icecream); margin-bottom:8px;">¡Mensaje Secreto Descubierto!</h3>
+      <p style="color:#FCE4EC; font-size:1rem; line-height:1.6; margin-bottom:20px;" id="easterEggMessage">
+        Si encontraste esto, significa que eres muy curiosa... y esa curiosidad es una de las mil cosas que me encantan
+        de ti.
+      </p>
+      <button class="btn-glow-primary" id="btnCloseEasterEgg"
+        style="padding:10px 26px; font-size:1rem; min-height:44px;">
+        Guardar el secreto
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Especial: MY WONDER SOULMATE APOCALYPSE -->
+  <div class="modal-backdrop" id="wonderwallModal" role="dialog" aria-modal="true">
+    <div class="modal-card"
+      style="border-color: var(--berry-bright); box-shadow: 0 0 60px rgba(216, 27, 96, 0.7); max-width: 480px;">
+      <svg viewBox="0 0 24 24" width="55" height="55" fill="#D81B60"
+        style="margin-bottom:12px; filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.8));">
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+      </svg>
+      <h3 style="font-size:1.55rem; color:var(--pink-icecream); margin-bottom:12px; line-height:1.3;">
+        MY WONDER SOULMATE APOCALYPSE
+      </h3>
+      <p style="color:#FFF; font-size:1.02rem; line-height:1.7; margin-bottom:24px; font-weight:600; text-shadow: 0 2px 4px rgba(0,0,0,0.5);"
+        id="wonderwallModalText">
+        Se que hay mejores canciones que representan lo que siento por ti, pero estas las escucho a diario y siempre me
+        recuerda a MY WONDER SOULMATE APOCALYPSE que eres tu, tqmqmqmqmq
+      </p>
+      <button class="btn-glow-primary" id="btnCloseWonderwallModal"
+        style="padding:14px 28px; font-size:1.05rem; min-height:48px; width:100%; justify-content:center;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+        </svg>
+        <span>Continuar con la música</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================
+       JAVASCRIPT PRINCIPAL Y PERSONALIZACIÓN
+       ========================================================== -->
+  <script>
+    /* ==========================================================
+       DATOS PERSONALIZABLES (FÁCIL DE EDITAR)
+       ========================================================== */
+    const CONFIG = {
+      // 1. Nombres
+      NOMBRE_ELLA: "Marcelyn <3",
+      MI_NOMBRE: "Alddrun",
+
+      // 2. Número de WhatsApp con código de país (ejemplo: 593 para Ecuador, 52 para México, etc.)
+      NUMERO_WHATSAPP: "593958720168",
+
+      // 3. Mensaje que se enviará por WhatsApp
+      MENSAJE_WHATSAPP: "Holaaaa, cuando vamos por el helado???? :D",
+
+      // 4. Frase de bienvenida
+      TITULO_BIENVENIDA: "tequiero muchooo eres muy especial..........",
+
+      // 5. Mensaje de la carta final
+      MENSAJE_FINAL: "Me encantas muchooooooooooooooo <3. xd Si te extrañé un monton, ahora estoy feliz",
+
+      // 6. Título y días del cupón
+      CUPON_TITULO: "1 HELADO DE MORA O EL SABOR QUE TU QUIERAS",
+      CUPON_DIAS_VALIDEZ: 7,
+
+      // 7. Configuración de Canción Bola 1 (Soulmate - Mac Miller)
+      AUDIO_BOLA_1: "/audio/Soulmate.mp3",
+      LETRAS_SOULMATE: [
+        "Are you my soulmate?",
+        "My angel, what do you want with me?",
+        "Too high (too high), slow pace (slow pace)",
+        "My eyes closed, your body all I see"
+      ],
+
+      // Configuración de Canción Bola 2 (Apocalypse - Cigarettes After Sex)
+      AUDIO_BOLA_2: "/audio/Apocalypse.mp3",
+      LETRAS_APOCALYPSE: [
+        "Your lips, my lips",
+        "Apocalypse",
+        "Go and sneak us through the rivers",
+        "Flood is rising up on your knees",
+        "Oh, please",
+        "Come out and haunt me",
+        "I know you want me",
+        "Come out and haunt me"
+      ],
+
+      // Configuración de Canción Bola 3 (Wonderwall - Oasis)
+      AUDIO_BOLA_3: "/audio/Wonderwall.mp3",
+      AUDIO_WONDERWALL_COMPLETO: "/audio/Wonderwall_completo.mp3",
+      LETRAS_WONDERWALL: [
+        "Because maybe",
+        "You're gonna be the one that saves me",
+        "And after all",
+        "You're my wonderwall"
+      ],
+      MENSAJE_WONDERWALL_MODAL: "Se que hay mejores canciones que representan lo que siento por ti, pero estas las escucho a diario y siempre me recuerda a MY WONDER SOULMATE APOCALYPSE que eres tu, tqmqmqmqmq",
+
+      // 8. 6 Sabores de Ti (Tarjetas 3D)
+      SABORES: [
+        {
+          id: 1,
+          nombre: "Sonrisa de abejita",
+          desc: "No se si las abejas sonrian, pero es una abejita y son bonitas como tú.",
+          color: "#9C27B0"
+        },
+        {
+          id: 2,
+          nombre: "Ojos de Galaxias",
+          desc: "Ver tus ojos me recuerda a las maravillas del universo.",
+          color: "#BA68C8"
+        },
+        {
+          id: 3,
+          nombre: "Risa Contagiosa",
+          desc: "Me encanta escucharte reir, te lo digo mucho xd tqmmmmmm",
+          color: "#D81B60"
+        },
+        {
+          id: 4,
+          nombre: "Dulzura",
+          desc: "Ver algo lindo y tierno me recuerda a ti, eres increible.",
+          color: "#E91E63"
+        },
+        {
+          id: 5,
+          nombre: "Aura",
+          desc: "No es un concurso de aura, pero brillas demasiado y me encantas xd",
+          color: "#8E24AA"
+        },
+        {
+          id: 6,
+          nombre: "Tu Forma de Ser",
+          desc: "Única, inteligente, divertida y simplemente PERFECTA.",
+          color: "#6A1B9A"
+        }
+      ]
+    };
+
+    const soulmateAudio = new Audio(CONFIG.AUDIO_BOLA_1);
+    const apocalypseAudio = new Audio(CONFIG.AUDIO_BOLA_2);
+    const wonderwallAudio = new Audio(CONFIG.AUDIO_BOLA_3);
+    const wonderwallCompletoAudio = new Audio(CONFIG.AUDIO_WONDERWALL_COMPLETO);
+    wonderwallCompletoAudio.loop = true;
+
+    /* ==========================================================
+       INICIALIZACIÓN DE TEXTOS PERSONALIZADOS EN LA INTERFAZ
+       ========================================================== */
+    function applyPersonalizedData() {
+      document.getElementById('labelNombreElla').textContent = CONFIG.NOMBRE_ELLA;
+      document.getElementById('ticketRecipient').textContent = CONFIG.NOMBRE_ELLA;
+      document.getElementById('ticketSender').textContent = CONFIG.MI_NOMBRE;
+      document.getElementById('finalLetterSig').textContent = `— Con cariño, ${CONFIG.MI_NOMBRE}`;
+      document.getElementById('finalLetterText').textContent = `"${CONFIG.MENSAJE_FINAL}"`;
+      document.getElementById('btnWhatsappText').textContent = `Responderle a ${CONFIG.MI_NOMBRE}`;
+      document.getElementById('labelCuponPremio').textContent = CONFIG.CUPON_TITULO;
+      document.getElementById('couponValidity').textContent = `Válido por ${CONFIG.CUPON_DIAS_VALIDEZ} días a partir de hoy`;
+
+      // Enlace de WhatsApp codificado
+      const waUrl = `https://wa.me/${CONFIG.NUMERO_WHATSAPP}?text=${encodeURIComponent(CONFIG.MENSAJE_WHATSAPP)}`;
+      document.getElementById('btnWhatsappResponse').href = waUrl;
+
+      // Código de cupón aleatorio generado para esta visita
+      const randomCode = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('couponCode').textContent = `MORA-${randomCode}`;
+
+      // Fecha actual en español
+      const now = new Date();
+      const options = { day: 'numeric', month: 'short', year: 'numeric' };
+      document.getElementById('couponDate').textContent = now.toLocaleDateString('es-ES', options);
+
+      // Mensaje de Modal Wonderwall
+      if (document.getElementById('wonderwallModalText')) {
+        document.getElementById('wonderwallModalText').textContent = CONFIG.MENSAJE_WONDERWALL_MODAL;
+      }
+    }
+
+
+    /* ==========================================================
+       WEB AUDIO API: SINTETIZADOR DE SONIDOS (SIN ARCHIVOS EXTERNOS)
+       ========================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playPop(freq = 440) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.8, this.ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.1);
+        } catch (e) { }
+      }
+      playChime() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C alta
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+            gain.gain.setValueAtTime(0.15, this.ctx.currentTime + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + idx * 0.08);
+            osc.stop(this.ctx.currentTime + idx * 0.08 + 0.35);
+          });
+        } catch (e) { }
+      }
+    }
+    const audio = new SoundEngine();
+
+    // Toggle de sonido
+    const btnAudio = document.getElementById('btnAudioToggle');
+    const iconAudioOn = document.getElementById('iconAudioOn');
+    const iconAudioOff = document.getElementById('iconAudioOff');
+    btnAudio.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      iconAudioOn.style.display = audio.muted ? 'none' : 'block';
+      iconAudioOff.style.display = audio.muted ? 'block' : 'none';
+      if (typeof soulmateAudio !== 'undefined' && soulmateAudio) {
+        soulmateAudio.muted = audio.muted;
+      }
+      if (typeof apocalypseAudio !== 'undefined' && apocalypseAudio) {
+        apocalypseAudio.muted = audio.muted;
+      }
+      if (typeof wonderwallAudio !== 'undefined' && wonderwallAudio) {
+        wonderwallAudio.muted = audio.muted;
+      }
+      if (typeof wonderwallCompletoAudio !== 'undefined' && wonderwallCompletoAudio) {
+        wonderwallCompletoAudio.muted = audio.muted;
+      }
+      if (!audio.muted) audio.playPop(580);
+    });
+
+
+    /* ==========================================================
+       CONFETI Y PARTÍCULAS CANVAS (60 FPS)
+       ========================================================== */
+    const confettiCanvas = document.getElementById('confetti-canvas');
+    const cCtx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
+
+    function launchConfetti(x = window.innerWidth / 2, y = window.innerHeight / 2, count = 60) {
+      audio.playChime();
+      const colors = ['#D81B60', '#BA68C8', '#9C4DCC', '#F8BBD9', '#FFF3E8', '#FF4081', '#E1BEE7'];
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 10 + 4;
+        confettiParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 3,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 12,
+          shape: Math.random() > 0.4 ? 'circle' : 'heart',
+          life: 1.0,
+          decay: Math.random() * 0.015 + 0.012
+        });
+      }
+    }
+
+    function renderConfetti() {
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      for (let i = confettiParticles.length - 1; i >= 0; i--) {
+        const p = confettiParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.22; // gravedad
+        p.vx *= 0.98;
+        p.rotation += p.rotSpeed;
+        p.life -= p.decay;
+
+        if (p.life <= 0 || p.y > confettiCanvas.height + 20) {
+          confettiParticles.splice(i, 1);
+          continue;
+        }
+
+        cCtx.save();
+        cCtx.globalAlpha = Math.max(0, p.life);
+        cCtx.translate(p.x, p.y);
+        cCtx.rotate((p.rotation * Math.PI) / 180);
+        cCtx.fillStyle = p.color;
+
+        if (p.shape === 'circle') {
+          cCtx.beginPath();
+          cCtx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          cCtx.fill();
+        } else {
+          // Mini corazón
+          const s = p.size / 2;
+          cCtx.beginPath();
+          cCtx.moveTo(0, s / 3);
+          cCtx.bezierCurveTo(-s, -s, -s * 1.5, s / 3, 0, s * 1.5);
+          cCtx.bezierCurveTo(s * 1.5, s / 3, s, -s, 0, s / 3);
+          cCtx.fill();
+        }
+        cCtx.restore();
+      }
+      requestAnimationFrame(renderConfetti);
+    }
+    requestAnimationFrame(renderConfetti);
+
+
+    /* ==========================================================
+       ESTELA DE CURSOR / TOQUE (TRAIL)
+       ========================================================== */
+    const trailCanvas = document.getElementById('trail-canvas');
+    const tCtx = trailCanvas.getContext('2d');
+    let trailParticles = [];
+
+    function resizeTrail() {
+      trailCanvas.width = window.innerWidth;
+      trailCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeTrail);
+    resizeTrail();
+
+    function addTrail(x, y) {
+      if (trailParticles.length > 40) return;
+      const colors = ['#F8BBD9', '#BA68C8', '#D81B60', '#FFF'];
+      trailParticles.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5 - 0.8,
+        size: Math.random() * 6 + 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1.0,
+        decay: 0.04
+      });
+    }
+
+    window.addEventListener('mousemove', (e) => addTrail(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches[0]) {
+        addTrail(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    function renderTrail() {
+      tCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+      for (let i = trailParticles.length - 1; i >= 0; i--) {
+        const p = trailParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0) {
+          trailParticles.splice(i, 1);
+          continue;
+        }
+        tCtx.save();
+        tCtx.globalAlpha = p.life;
+        tCtx.fillStyle = p.color;
+        tCtx.beginPath();
+        tCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        tCtx.fill();
+        tCtx.restore();
+      }
+      requestAnimationFrame(renderTrail);
+    }
+    requestAnimationFrame(renderTrail);
+
+
+    /* ==========================================================
+       FONDO AMBIENTAL PARALLAX (MORAS Y BRILLOS FLOTANTES)
+       ========================================================== */
+    const ambientCanvas = document.getElementById('ambient-canvas');
+    const aCtx = ambientCanvas.getContext('2d');
+    let ambientItems = [];
+
+    function resizeAmbient() {
+      ambientCanvas.width = window.innerWidth;
+      ambientCanvas.height = window.innerHeight;
+      ambientItems = [];
+      const count = window.innerWidth < 600 ? 16 : 28;
+      for (let i = 0; i < count; i++) {
+        ambientItems.push({
+          x: Math.random() * ambientCanvas.width,
+          y: Math.random() * ambientCanvas.height,
+          radius: Math.random() * 12 + 6,
+          speedY: Math.random() * 0.4 + 0.15,
+          speedX: (Math.random() - 0.5) * 0.2,
+          opacity: Math.random() * 0.35 + 0.1,
+          color: Math.random() > 0.5 ? '#BA68C8' : '#D81B60'
+        });
+      }
+    }
+    window.addEventListener('resize', resizeAmbient);
+    resizeAmbient();
+
+    function renderAmbient() {
+      aCtx.clearRect(0, 0, ambientCanvas.width, ambientCanvas.height);
+      for (let item of ambientItems) {
+        item.y -= item.speedY;
+        item.x += item.speedX;
+        if (item.y < -20) {
+          item.y = ambientCanvas.height + 20;
+          item.x = Math.random() * ambientCanvas.width;
+        }
+        aCtx.save();
+        aCtx.globalAlpha = item.opacity;
+        aCtx.fillStyle = item.color;
+        aCtx.beginPath();
+        aCtx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
+        aCtx.fill();
+        aCtx.restore();
+      }
+      requestAnimationFrame(renderAmbient);
+    }
+    requestAnimationFrame(renderAmbient);
+
+
+    /* ==========================================================
+       BARRA DE PROGRESO DE SCROLL CON MORA
+       ========================================================== */
+    const progressBar = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const percent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      progressBar.style.width = percent + '%';
+    });
+
+
+    /* ==========================================================
+       MÁQUINA DE ESCRIBIR EN BIENVENIDA
+       ========================================================== */
+    function startTypewriter() {
+      const el = document.getElementById('typewriterText');
+      const text = CONFIG.TITULO_BIENVENIDA;
+      let idx = 0;
+      el.textContent = '';
+      function typeChar() {
+        if (idx < text.length) {
+          el.textContent += text.charAt(idx);
+          idx++;
+          setTimeout(typeChar, 70);
+        }
+      }
+      typeChar();
+    }
+
+
+    /* ==========================================================
+       SECCIÓN 1: BOTÓN ABRIR REGALO
+       ========================================================== */
+    const btnOpenGift = document.getElementById('btnOpenGift');
+    btnOpenGift.addEventListener('click', (e) => {
+      audio.playPop(520);
+      const rect = btnOpenGift.getBoundingClientRect();
+      launchConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 50);
+      document.getElementById('helado-representa').scrollIntoView({ behavior: 'smooth' });
+    });
+
+
+    /* ==========================================================
+       SECCIÓN 2: HELADO INTERACTIVO (3 BOLAS)
+       ========================================================== */
+    let discoveredScoops = new Set();
+    let scoopSongMap = {}; // Guarda la canción asignada a cada bola según el orden en que las toque
+    const scoopBtns = document.querySelectorAll('.scoop-btn');
+    const scoopMessage = document.getElementById('scoopMessage');
+    const counterText = document.getElementById('counterText');
+    let lyricsTimeouts = [];
+
+    function clearLyricsTimeouts() {
+      lyricsTimeouts.forEach(t => clearTimeout(t));
+      lyricsTimeouts = [];
+    }
+
+    function stopAllScoopAudios() {
+      clearLyricsTimeouts();
+      if (typeof soulmateAudio !== 'undefined' && soulmateAudio) {
+        soulmateAudio.pause();
+        soulmateAudio.currentTime = 0;
+      }
+      if (typeof apocalypseAudio !== 'undefined' && apocalypseAudio) {
+        apocalypseAudio.pause();
+        apocalypseAudio.currentTime = 0;
+      }
+      if (typeof wonderwallAudio !== 'undefined' && wonderwallAudio) {
+        wonderwallAudio.pause();
+        wonderwallAudio.currentTime = 0;
+      }
+    }
+
+    // Canción 1: Soulmate - Mac Miller (Aparición pausada y romántica)
+    function playSoulmateLyrics() {
+      stopAllScoopAudios();
+      soulmateAudio.volume = 0.85;
+      soulmateAudio.play().catch(e => console.log('Audio interaction note:', e));
+
+      scoopMessage.innerHTML = `
+        <div class="lyrics-wrapper" id="lyricsWrapper">
+          <div class="lyrics-header">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            <span>Mac Miller — Soulmate</span>
+          </div>
+          ${CONFIG.LETRAS_SOULMATE.map((line, i) => `<div class="lyrics-line" id="soulLyric${i}">"${line}"</div>`).join('')}
+        </div>
+      `;
+
+      // Delays más lentos y pausados
+      const delays = [800, 4600, 9200, 13800];
+      delays.forEach((delay, idx) => {
+        const t = setTimeout(() => {
+          const el = document.getElementById(`soulLyric${idx}`);
+          if (el) {
+            el.classList.add('visible');
+            el.classList.add('highlight');
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => {
+              if (el) el.classList.remove('highlight');
+            }, 3000);
+          }
+        }, delay);
+        lyricsTimeouts.push(t);
+      });
+    }
+
+    // Canción 2: Apocalypse - Cigarettes After Sex (Aparición con ritmo más fluido)
+    function playApocalypseLyrics() {
+      stopAllScoopAudios();
+      apocalypseAudio.volume = 0.85;
+      apocalypseAudio.play().catch(e => console.log('Audio interaction note:', e));
+
+      scoopMessage.innerHTML = `
+        <div class="lyrics-wrapper" id="lyricsWrapper">
+          <div class="lyrics-header">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            <span>Cigarettes After Sex — Apocalypse</span>
+          </div>
+          ${CONFIG.LETRAS_APOCALYPSE.map((line, i) => `<div class="lyrics-line" id="apocLyric${i}">"${line}"</div>`).join('')}
+        </div>
+      `;
+
+      // Delays más dinámicos y sincronizados con el compás de Apocalypse
+      const delays = [500, 2800, 5800, 9200, 12600, 15800, 19200, 22600];
+      delays.forEach((delay, idx) => {
+        const t = setTimeout(() => {
+          const el = document.getElementById(`apocLyric${idx}`);
+          if (el) {
+            el.classList.add('visible');
+            el.classList.add('highlight');
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => {
+              if (el) el.classList.remove('highlight');
+            }, 2400);
+          }
+        }, delay);
+        lyricsTimeouts.push(t);
+      });
+    }
+
+    // Canción 3: Wonderwall - Oasis (Culminación final y apertura de modal flotante)
+    function playWonderwallLyrics() {
+      stopAllScoopAudios();
+      wonderwallAudio.volume = 0.85;
+      wonderwallAudio.play().catch(e => console.log('Audio interaction note:', e));
+
+      scoopMessage.innerHTML = `
+        <div class="lyrics-wrapper" id="lyricsWrapper">
+          <div class="lyrics-header">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            <span>Oasis — Wonderwall</span>
+          </div>
+          ${CONFIG.LETRAS_WONDERWALL.map((line, i) => `<div class="lyrics-line" id="wonderLyric${i}">"${line}"</div>`).join('')}
+        </div>
+      `;
+
+      // Delays lentos para Wonderwall
+      const delays = [800, 4800, 9200, 13600];
+      delays.forEach((delay, idx) => {
+        const t = setTimeout(() => {
+          const el = document.getElementById(`wonderLyric${idx}`);
+          if (el) {
+            el.classList.add('visible');
+            el.classList.add('highlight');
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => {
+              if (el) el.classList.remove('highlight');
+            }, 3500);
+
+            // Al llegar a la última línea ("You're my wonderwall")
+            if (idx === CONFIG.LETRAS_WONDERWALL.length - 1) {
+              const modalT = setTimeout(() => {
+                const modal = document.getElementById('wonderwallModal');
+                if (modal) {
+                  modal.classList.add('open');
+                  launchConfetti(window.innerWidth / 2, window.innerHeight / 2, 80);
+                }
+              }, 2200);
+              lyricsTimeouts.push(modalT);
+            }
+          }
+        }, delay);
+        lyricsTimeouts.push(t);
+      });
+    }
+
+    scoopBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-index'), 10);
+
+        // Si esta bola aún no tiene canción asignada, se le asigna por orden de descubrimiento
+        if (scoopSongMap[idx] === undefined) {
+          const currentCount = discoveredScoops.size;
+          if (currentCount === 0) {
+            scoopSongMap[idx] = 'soulmate';
+          } else if (currentCount === 1) {
+            scoopSongMap[idx] = 'apocalypse';
+          } else {
+            scoopSongMap[idx] = 'wonderwall'; // La 3ra y última bola descubierta siempre es Wonderwall
+          }
+          discoveredScoops.add(idx);
+        }
+
+        const songToPlay = scoopSongMap[idx];
+
+        btn.classList.remove('bounce-active');
+        void btn.offsetWidth; // reflow
+        btn.classList.add('bounce-active');
+        audio.playPop(480 + idx * 80);
+
+        scoopMessage.style.opacity = '0';
+        setTimeout(() => {
+          if (songToPlay === 'soulmate') {
+            playSoulmateLyrics();
+          } else if (songToPlay === 'apocalypse') {
+            playApocalypseLyrics();
+          } else if (songToPlay === 'wonderwall') {
+            playWonderwallLyrics();
+          }
+          scoopMessage.style.opacity = '1';
+        }, 150);
+
+        counterText.textContent = `Descubre los 3 sabores (${discoveredScoops.size}/3)`;
+
+        if (discoveredScoops.size === 3) {
+          setTimeout(() => {
+            counterText.textContent = '¡Completaste los 3 sabores!';
+            counterText.style.background = 'rgba(216, 27, 96, 0.4)';
+            counterText.style.color = '#FFF';
+            launchConfetti(window.innerWidth / 2, window.innerHeight * 0.4, 50);
+          }, 300);
+        }
+      });
+    });
+
+
+    /* ==========================================================
+       SECCIÓN 3: MENÚ DE SABORES DE TI (6 TARJETAS 3D)
+       ========================================================== */
+    function renderFlavorsGrid() {
+      const grid = document.getElementById('flavorsGrid');
+      grid.innerHTML = '';
+      CONFIG.SABORES.forEach((flavor) => {
+        const card = document.createElement('div');
+        card.className = 'flavor-card';
+        card.innerHTML = `
+          <div class="card-face card-front">
+            <!-- Icono SVG Mora Dulce -->
+            <svg class="flavor-icon" viewBox="0 0 32 32">
+              <circle cx="16" cy="18" r="6" fill="${flavor.color}"/>
+              <circle cx="10" cy="16" r="5" fill="#BA68C8"/>
+              <circle cx="22" cy="16" r="5" fill="#BA68C8"/>
+              <circle cx="12" cy="23" r="4.5" fill="#7B1FA2"/>
+              <circle cx="20" cy="23" r="4.5" fill="#7B1FA2"/>
+              <path d="M16 11 C13 7, 9 9, 10 13 C12 13, 14 12, 16 11 Z" fill="#4CAF50"/>
+              <path d="M16 11 C19 7, 23 9, 22 13 C20 13, 18 12, 16 11 Z" fill="#388E3C"/>
+            </svg>
+            <div class="flavor-title">${flavor.nombre}</div>
+            <div class="flavor-hint">Toca para voltear</div>
+          </div>
+          <div class="card-face card-back">
+            <div>"${flavor.desc}"</div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          audio.playPop(550);
+          card.classList.toggle('flipped');
+        });
+        grid.appendChild(card);
+      });
+    }
+
+
+    /* ==========================================================
+       SECCIÓN 4: MORÓMETRO DE BELLEZA
+       ========================================================== */
+    const btnHold = document.getElementById('btnHoldMeter');
+    const meterLiquid = document.getElementById('meterLiquid');
+    const meterStatus = document.getElementById('meterStatus');
+    let meterInterval = null;
+    let meterProgress = 0;
+    let meterCompleted = false;
+
+    function startHolding() {
+      if (meterCompleted) return;
+      audio.init();
+      btnHold.classList.add('holding');
+      clearInterval(meterInterval);
+
+      meterInterval = setInterval(() => {
+        meterProgress += 1.8;
+        if (meterProgress > 100) meterProgress = 100;
+        meterLiquid.style.height = meterProgress + '%';
+
+        if (meterProgress < 25) {
+          meterStatus.textContent = 'Calculando nivel de dulzura...';
+          audio.playPop(300 + meterProgress * 3);
+        } else if (meterProgress < 50) {
+          meterStatus.textContent = 'Analizando encanto y belleza...';
+        } else if (meterProgress < 75) {
+          meterStatus.textContent = '¡Alerta! Nivel sobrepasando el límite...';
+        } else if (meterProgress < 99) {
+          meterStatus.textContent = 'Superaste el límite... Siempre increible :D';
+        } else if (meterProgress >= 100) {
+          meterCompleted = true;
+          clearInterval(meterInterval);
+          meterStatus.textContent = '¡Resultado: 1000% Preciosa!';
+          meterStatus.style.color = '#FFF';
+          meterStatus.style.fontWeight = 'bold';
+          btnHold.style.display = 'none';
+
+          if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 150]);
+          }
+          const rect = meterLiquid.getBoundingClientRect();
+          launchConfetti(rect.left + rect.width / 2, rect.top, 70);
+        }
+      }, 40);
+    }
+
+    function stopHolding() {
+      if (meterCompleted) return;
+      btnHold.classList.remove('holding');
+      clearInterval(meterInterval);
+      if (meterProgress < 100) {
+        meterInterval = setInterval(() => {
+          meterProgress -= 3;
+          if (meterProgress <= 0) {
+            meterProgress = 0;
+            clearInterval(meterInterval);
+            meterStatus.textContent = 'Mantén presionado para medir';
+          }
+          meterLiquid.style.height = meterProgress + '%';
+        }, 20);
+      }
+    }
+
+    btnHold.addEventListener('mousedown', startHolding);
+    window.addEventListener('mouseup', stopHolding);
+    btnHold.addEventListener('touchstart', (e) => { e.preventDefault(); startHolding(); }, { passive: false });
+    window.addEventListener('touchend', stopHolding);
+
+
+    /* ==========================================================
+       SECCIÓN 5: ATRAPA LAS MORAS (MINI-JUEGO 15s)
+       ========================================================== */
+    const gameArea = document.getElementById('gameArea');
+    const gameTimerEl = document.getElementById('gameTimer');
+    const gameScoreEl = document.getElementById('gameScore');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const btnStartGame = document.getElementById('btnStartGame');
+    const gameOverlayTitle = document.getElementById('gameOverlayTitle');
+    const gameOverlayDesc = document.getElementById('gameOverlayDesc');
+
+    let gameActive = false;
+    let gameScore = 0;
+    let gameTimeLeft = 15;
+    let gameSpawnTimer = null;
+    let gameClockTimer = null;
+
+    const phrases = ["¡Qué linda!", "¡Puntos extra!", "¡Dulzura total!", "¡Increíble!", "¡Otra mora!"];
+
+    function spawnGameMora() {
+      if (!gameActive) return;
+      const mora = document.createElement('div');
+      mora.className = 'falling-mora';
+      const startX = Math.random() * (gameArea.clientWidth - 50);
+      mora.style.left = startX + 'px';
+      mora.style.top = '-50px';
+
+      mora.innerHTML = `
+        <svg viewBox="0 0 32 32" width="44" height="44">
+          <circle cx="16" cy="18" r="6.5" fill="#D81B60"/>
+          <circle cx="10" cy="16" r="5.5" fill="#BA68C8"/>
+          <circle cx="22" cy="16" r="5.5" fill="#BA68C8"/>
+          <circle cx="12" cy="23" r="5" fill="#7B1FA2"/>
+          <circle cx="20" cy="23" r="5" fill="#7B1FA2"/>
+          <circle cx="16" cy="26" r="4.5" fill="#4A0E4E"/>
+          <path d="M16 11 C13 7, 9 9, 10 13 C12 13, 14 12, 16 11 Z" fill="#4CAF50"/>
+          <path d="M16 11 C19 7, 23 9, 22 13 C20 13, 18 12, 16 11 Z" fill="#388E3C"/>
+        </svg>
+      `;
+
+      let posY = -50;
+      const speed = Math.random() * 2.5 + 2.2;
+
+      function catchMora(e) {
+        if (!gameActive) return;
+        e.stopPropagation();
+        gameScore += 10;
+        gameScoreEl.textContent = gameScore;
+        audio.playPop(600 + Math.random() * 200);
+
+        // Mensajito flotante
+        const floatMsg = document.createElement('div');
+        floatMsg.className = 'floating-point-text';
+        floatMsg.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+        floatMsg.style.left = startX + 'px';
+        floatMsg.style.top = posY + 'px';
+        gameArea.appendChild(floatMsg);
+        setTimeout(() => floatMsg.remove(), 800);
+
+        mora.remove();
+      }
+
+      mora.addEventListener('click', catchMora);
+      mora.addEventListener('touchstart', catchMora, { passive: true });
+
+      gameArea.appendChild(mora);
+
+      const animInterval = setInterval(() => {
+        if (!gameActive) {
+          clearInterval(animInterval);
+          mora.remove();
+          return;
+        }
+        posY += speed;
+        mora.style.top = posY + 'px';
+        if (posY > gameArea.clientHeight) {
+          clearInterval(animInterval);
+          mora.remove();
+        }
+      }, 16);
+    }
+
+    function startGame() {
+      gameActive = true;
+      gameScore = 0;
+      gameTimeLeft = 15;
+      gameScoreEl.textContent = gameScore;
+      gameTimerEl.textContent = gameTimeLeft;
+      gameOverScreen.style.display = 'none';
+
+      gameSpawnTimer = setInterval(spawnGameMora, 450);
+      gameClockTimer = setInterval(() => {
+        gameTimeLeft--;
+        gameTimerEl.textContent = gameTimeLeft;
+        if (gameTimeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      gameActive = false;
+      clearInterval(gameSpawnTimer);
+      clearInterval(gameClockTimer);
+
+      gameOverlayTitle.textContent = '¡Ganaste!';
+      gameOverlayDesc.textContent = `Atrapaste ${gameScore} moras. Hay que concursar para ganarte y decir que gané dos veces en conocerte.`;
+      btnStartGame.innerHTML = `<span>Jugar de nuevo</span>`;
+      gameOverScreen.style.display = 'flex';
+
+      launchConfetti(window.innerWidth / 2, window.innerHeight * 0.5, 60);
+    }
+
+    btnStartGame.addEventListener('click', startGame);
+
+
+    /* ==========================================================
+       SECCIÓN 6: BOTÓN TRAVIESO
+       ========================================================== */
+    const btnYes = document.getElementById('btnYesMischief');
+    const btnNo = document.getElementById('btnNoMischief');
+    let noAttempts = 0;
+    let yesScale = 1;
+
+    const noTexts = [
+      "Mmm... déjame pensarlo",
+      "¿Segura de lo que haces?",
+      "Piénsalo bien...",
+      "Mira que el helado se derrite...",
+      "Te juro que el de mora es delicioso...",
+      "¡Solo dale al Sí!"
+    ];
+
+    function dodgeNoButton() {
+      noAttempts++;
+      audio.playPop(350);
+
+      // El botón No cambia de texto
+      const textIdx = Math.min(noAttempts, noTexts.length - 1);
+      btnNo.textContent = noTexts[textIdx];
+
+      // El botón No huye a una posición aleatoria dentro de la zona
+      const zone = document.getElementById('mischiefZone');
+      const maxW = zone.clientWidth - btnNo.clientWidth - 20;
+      const maxH = zone.clientHeight - btnNo.clientHeight - 20;
+      const randX = (Math.random() - 0.5) * maxW * 0.7;
+      const randY = (Math.random() - 0.5) * maxH * 0.7;
+
+      btnNo.style.transform = `translate(${randX}px, ${randY}px) scale(${Math.max(0.7, 1 - noAttempts * 0.05)})`;
+
+      // El botón Sí crece
+      yesScale += 0.08;
+      btnYes.style.transform = `scale(${yesScale})`;
+    }
+
+    btnNo.addEventListener('mouseenter', dodgeNoButton);
+    btnNo.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      dodgeNoButton();
+    }, { passive: false });
+
+    btnYes.addEventListener('click', (e) => {
+      launchConfetti(window.innerWidth / 2, window.innerHeight / 2, 80);
+      document.getElementById('premio').scrollIntoView({ behavior: 'smooth' });
+    });
+
+
+    /* ==========================================================
+       SECCIÓN 7: CUPÓN RASPABLE EN CANVAS
+       ========================================================== */
+    const scratchCanvas = document.getElementById('scratch-canvas');
+    const sCtx = scratchCanvas.getContext('2d');
+    let isScratching = false;
+    let scratchedPixels = 0;
+    let couponRevealed = false;
+
+    function initScratchCanvas() {
+      const container = document.getElementById('scratchContainer');
+      scratchCanvas.width = container.clientWidth;
+      scratchCanvas.height = container.clientHeight;
+
+      // Dibujar capa brillante raspable
+      const grad = sCtx.createLinearGradient(0, 0, scratchCanvas.width, scratchCanvas.height);
+      grad.addColorStop(0, '#9C27B0');
+      grad.addColorStop(0.5, '#D81B60');
+      grad.addColorStop(1, '#6A1B9A');
+      sCtx.fillStyle = grad;
+      sCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+
+      // Texto de guía
+      sCtx.fillStyle = '#FFFFFF';
+      sCtx.font = 'bold 16px Nunito, sans-serif';
+      sCtx.textAlign = 'center';
+      sCtx.fillText('★ Raspa aquí con tu dedo ★', scratchCanvas.width / 2, scratchCanvas.height / 2);
+    }
+
+    function scratch(x, y) {
+      if (couponRevealed) return;
+      sCtx.globalCompositeOperation = 'destination-out';
+      sCtx.beginPath();
+      sCtx.arc(x, y, 24, 0, Math.PI * 2);
+      sCtx.fill();
+
+      // Audio suave ocasional
+      if (Math.random() > 0.6) audio.playPop(500);
+
+      // Comprobar porcentaje raspado
+      scratchedPixels++;
+      if (scratchedPixels > 25 && !couponRevealed) {
+        couponRevealed = true;
+        scratchCanvas.style.transition = 'opacity 0.6s ease';
+        scratchCanvas.style.opacity = '0';
+        setTimeout(() => scratchCanvas.remove(), 600);
+        launchConfetti(window.innerWidth / 2, window.innerHeight * 0.6, 60);
+      }
+    }
+
+    function getCanvasCoords(e) {
+      const rect = scratchCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    scratchCanvas.addEventListener('mousedown', (e) => {
+      isScratching = true;
+      const { x, y } = getCanvasCoords(e);
+      scratch(x, y);
+    });
+    window.addEventListener('mouseup', () => isScratching = false);
+    scratchCanvas.addEventListener('mousemove', (e) => {
+      if (!isScratching) return;
+      const { x, y } = getCanvasCoords(e);
+      scratch(x, y);
+    });
+
+    scratchCanvas.addEventListener('touchstart', (e) => {
+      isScratching = true;
+      const { x, y } = getCanvasCoords(e);
+      scratch(x, y);
+    }, { passive: true });
+    scratchCanvas.addEventListener('touchmove', (e) => {
+      if (!isScratching) return;
+      const { x, y } = getCanvasCoords(e);
+      scratch(x, y);
+    }, { passive: true });
+    window.addEventListener('touchend', () => isScratching = false);
+
+
+    /* ==========================================================
+       TOASTS SORPRESA AUTOMÁTICOS
+       ========================================================== */
+    const toasts = [
+      "Psst... te ves increíble hoy.",
+      "Sigue bajando, hay más sorpresas.",
+      "Un helado de mora debe ser 100% mejor contigo.",
+      "Una sonrisa tuya me alegra el día."
+    ];
+    let toastIndex = 0;
+
+    function showToast() {
+      const container = document.getElementById('toastContainer');
+      const text = toasts[toastIndex % toasts.length];
+      toastIndex++;
+
+      const toast = document.createElement('div');
+      toast.className = 'toast-item';
+      toast.innerHTML = `
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="#F8BBD9">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span>${text}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    }
+
+    // Mostrar primer toast tras 6 segundos y luego periódicamente
+    setTimeout(() => {
+      showToast();
+      setInterval(showToast, 18000);
+    }, 6000);
+
+
+    /* ==========================================================
+       EASTER EGG (TOCAR 5 VECES EL LOGO)
+       ========================================================== */
+    let secretClicks = 0;
+    const trigger = document.getElementById('secretLogoTrigger');
+    const modal = document.getElementById('easterEggModal');
+    const btnCloseModal = document.getElementById('btnCloseEasterEgg');
+
+    trigger.addEventListener('click', () => {
+      secretClicks++;
+      audio.playPop(400 + secretClicks * 60);
+      if (secretClicks === 5) {
+        secretClicks = 0;
+        modal.classList.add('open');
+        launchConfetti(window.innerWidth / 2, window.innerHeight / 2, 70);
+      }
+    });
+
+    btnCloseModal.addEventListener('click', () => {
+      modal.classList.remove('open');
+    });
+
+    // Cierre de Modal Especial Wonderwall -> Activa Wonderwall_completo.mp3 de fondo
+    const btnCloseWonderModal = document.getElementById('btnCloseWonderwallModal');
+    const wonderModal = document.getElementById('wonderwallModal');
+    if (btnCloseWonderModal && wonderModal) {
+      btnCloseWonderModal.addEventListener('click', () => {
+        wonderModal.classList.remove('open');
+        // Detener snippet corto
+        if (typeof wonderwallAudio !== 'undefined' && wonderwallAudio) {
+          wonderwallAudio.pause();
+          wonderwallAudio.currentTime = 0;
+        }
+        // Iniciar Wonderwall completo de fondo
+        if (typeof wonderwallCompletoAudio !== 'undefined' && wonderwallCompletoAudio) {
+          wonderwallCompletoAudio.volume = 0.45;
+          wonderwallCompletoAudio.play().catch(e => console.log('Background audio play note:', e));
+        }
+        launchConfetti(window.innerWidth / 2, window.innerHeight * 0.4, 50);
+      });
+    }
+
+
+    /* ==========================================================
+       INICIO AL CARGAR EL DOCUMENTO
+       ========================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      applyPersonalizedData();
+      renderFlavorsGrid();
+      startTypewriter();
+      setTimeout(initScratchCanvas, 300);
+    });
+    window.addEventListener('resize', () => {
+      if (!couponRevealed) initScratchCanvas();
+    });
+  </script>
+</body>
+
+</html>
